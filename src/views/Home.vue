@@ -1,5 +1,5 @@
 <template>
-  <section v-if="actualUser.email" class="home">
+  <section v-if="user.email" class="home">
     <div class="home-header">
       <h3>Mis Paneles</h3>
       <input
@@ -25,11 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardCard from '@/components/BoardCard.vue';
 import Board from '@/models/IBoard';
 import UserStore from '@/store/UserStore';
+import { mapState } from 'pinia';
 
 export default defineComponent({
   name: 'Home',
@@ -39,49 +40,42 @@ export default defineComponent({
     BoardCard,
   },
 
-  setup() {
-    const userStore = UserStore();
-    // Mis datos reactivos: ref para todo, pero usando value para acceder
-    // reactive mas orientado a datos complejos o objetos
-    // Pero podemos usar los dos si queremos
-    // https://stackoverflow.com/questions/61452458/ref-vs-reactive-in-vue-3
-    const boardName = ref('');
-    const boards = ref<Board[]>([
+  // Mi modelo de datos
+  data: () => ({
+    boardName: '',
+    boards: [
       { id: Date.now().toString(), name: 'Tareas', createdAt: Date.now() },
       { id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now() },
       { id: Date.now().toString(), name: 'Documentos', createdAt: Date.now() },
-    ]);
-    const actualUser = {};
+    ] as Array<Board>,
+  }),
 
-    // Antes de montarme
-    // Mis métodos
-    function addBoard() {
-      console.log('addBoard ->', boardName.value);
-      if (boardName.value) {
-        boards.value.push({ id: Date.now().toString(), name: boardName.value });
+  // Propiedades computadas
+  computed: {
+    ...mapState(UserStore, ['user']),
+  },
+
+  // Mis metodos
+  methods: {
+    addBoard() {
+      console.log('addBoard ->', this.boardName);
+      if (this.boardName) {
+        this.boards.push({ id: Date.now().toString(), name: this.boardName });
         notify({
           title: 'Pizarra de tareas creada',
-          text: `Se ha creado la pizarra de tareas: ${boardName.value}`,
+          text: `Se ha creado la pizarra de tareas: ${this.boardName}`,
           type: 'success',
         });
-        boardName.value = '';
+        this.boardName = '';
       }
-    }
+    },
 
-    function deleteBoard(boardId: string) {
+    deleteBoard(boardId: string) {
       console.log('deleteBoard ->', boardId);
-      boards.value = boards.value.filter((board) => board.id !== boardId);
-    }
-
-    // visibilidad
-    return {
-      boardName,
-      boards,
-      actualUser,
-      addBoard,
-      deleteBoard,
-    };
+      this.boards = this.boards.filter((board) => board.id !== boardId);
+    },
   },
+
 });
 </script>
 
