@@ -3,8 +3,7 @@
 import User from '@/models/IUser';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
-
-const Auth = Service.auth;
+import Auth from '@/services/Firebase/Auth';
 
 const UserStore = defineStore({
   // id es único para identificarlo con las DevTools
@@ -21,51 +20,41 @@ const UserStore = defineStore({
   // Mutan el objeto síncrona y asíncronamente,
   // equivalen a acciones y mutaciones
   actions: {
+
+    setUser(newUser: any) {
+      this.user = {
+        name: newUser.displayName,
+        email: newUser.email,
+        displayName: newUser.displayName,
+        photoURL: newUser.photoURL,
+      };
+    },
+
     async checkAuth() {
-      Auth.onAuthStateChanged(async (user) => {
+      Service.auth.onAuthStateChanged(async (user) => {
         await console.log('UserStore checkAuth ->', user);
         if (user) {
-          this.user = {
-            name: user.displayName || '',
-            email: user.email || '',
-            displayName: user.displayName || '',
-            photoURL: user.photoURL || '',
-          };
+          this.setUser(user);
         }
       });
     },
 
-    async actualUser(): Promise<User> {
-      const actualUser = await Auth.currentUser;
+    async activeUser() {
+      const actualUser = await Auth.getActiveUser();
       if (actualUser) {
-        this.user = {
-          name: actualUser.displayName || '',
-          email: actualUser.email || '',
-          displayName: actualUser.displayName || '',
-          photoURL: actualUser.photoURL || '',
-        };
-        return this.user;
+        this.setUser(actualUser);
       }
-      return {};
     },
 
-    async loginGoogle(): Promise<User> {
-      const res = await Auth.signInWithPopup(Service.providerGoogle);
-      console.log('UserStore loginGoogle ->', res.user);
-      if (res.user) {
-        this.user = {
-          name: res.user.displayName || '',
-          email: res.user.email || '',
-          displayName: res.user.displayName || '',
-          photoURL: res.user.photoURL || '',
-        };
-        return this.user;
+    async logIn() {
+      const actualUser = await Auth.loginGoogle();
+      if (actualUser) {
+        this.setUser(actualUser);
       }
-      return {};
     },
 
-    async logoutGoogle() {
-      await Auth.signOut();
+    async logOut() {
+      await Auth.logoutGoogle();
       this.user = {};
     },
 
