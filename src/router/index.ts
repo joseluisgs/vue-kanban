@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import Home from '../views/Home.vue';
-// import Board from '../views/Board.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -9,15 +8,15 @@ const routes: Array<RouteRecordRaw> = [
     component: Home,
   },
   // Board pasándole propiedades que le indiquemos
-  // {
-  //   path: '/board/:id',
-  //   name: 'Board',
-  //   // Cargamos completo
-  //   // component: Board,
-  //   // Lo cargamos dinámico
-  //   component: () => import('../views/Board.vue'),
-  //   props: true,
-  // },
+  {
+    path: '/board/:id',
+    name: 'Board',
+    // Cargamos completo
+    // component: Board,
+    // Lo cargamos dinámico
+    component: () => import('../views/Board.vue'),
+    props: true,
+  },
   // Ruta por defecto si no se encuentra el Path
   {
     path: '/:pathMatch(.*)*',
