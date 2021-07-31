@@ -11,8 +11,11 @@ console.log(`⚑ Firebase -> ${Service.defaultProject.name} ✓`);
 // Importamos nuestros estilos globales
 require('./assets/css/main.scss');
 
-createApp(App)
-  .use(router)
-  .use(createPinia())
-  .use(Notifications)
-  .mount('#app');
+// Para activar el seguimiento en tiempo real del usuario
+Service.auth.onAuthStateChanged(() => {
+  createApp(App)
+    .use(router)
+    .use(createPinia())
+    .use(Notifications)
+    .mount('#app');
+});

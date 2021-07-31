@@ -1,30 +1,69 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div id="app">
+    <AppHeader />
+    <router-view class="container"></router-view>
+    <notifications position="top right" />
+    <AppFooter />
   </div>
-  <router-view/>
 </template>
 
-<style lang="scss">
+<script lang="ts">
+import { defineComponent } from 'vue';
+import AppHeader from '@/components/AppHeader.vue';
+import AppFooter from '@/components/AppFooter.vue';
+import UserStore from '@/store/UserStore';
+import { mapState, mapActions } from 'pinia';
+
+export default defineComponent({
+  name: 'App',
+  // Mis componentes
+  components: {
+    AppHeader,
+    AppFooter,
+  },
+
+  // My LifeHooks
+  // Antes de crearme meto el usuartio en la store
+  async created() {
+    console.log('APP Created');
+    // De esta manera cargamos el estado inicial de la store
+    await this.checkAuth();
+    // console.log('APP checkAuth', this.User);
+    //   this.myUser = await this.actualUser();
+    //   console.log('APP actualUser', this.myUser);
+  },
+
+  // Mis propiedades computadas
+  computed: {
+    ...mapState(UserStore, ['User']),
+  },
+
+  // Mis métodos
+  methods: {
+    ...mapActions(UserStore, ['checkAuth']),
+  },
+});
+</script>
+
+<style lang="scss" scoped>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  color: #37474f;
+  margin: 0 auto;
+  padding: 0;
   text-align: center;
-  color: #2c3e50;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  // Con esto conseguimos que el fotter siempre esté abajo
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  width: 100%;
 }
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.container {
+  padding-bottom: 1rem;
+  // Para el footer indicamos que se expanda lo máximo posible
+  flex: 1;
 }
 </style>

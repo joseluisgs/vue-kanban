@@ -7,13 +7,21 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: Home,
   },
+  // Board pasándole propiedades que le indiquemos
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/board/:id',
+    name: 'Board',
+    // Cargamos completo
+    // component: Board,
+    // Lo cargamos dinámico
+    component: () => import('../views/Board.vue'),
+    props: true,
+  },
+  // Ruta por defecto si no se encuentra el Path
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: Home,
   },
 ];
 
