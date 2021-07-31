@@ -53,7 +53,11 @@ export default defineComponent({
         this.$router.go(0); // recargamos
         // console.log('Header doLogin ->', actualUser);
       } catch (error) {
-        console.error('Header doLogIn ->', error);
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
       }
     },
 
@@ -63,7 +67,11 @@ export default defineComponent({
         await this.logOut();
         this.$router.go(0); // Recargamos
       } catch (error) {
-        console.error('Header doLogOut ->', error);
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
       }
     },
   },

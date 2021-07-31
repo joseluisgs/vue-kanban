@@ -20,7 +20,7 @@ const UserStore = defineStore({
   // Mutan el objeto síncrona y asíncronamente,
   // equivalen a acciones y mutaciones
   actions: {
-
+    // eslint-disable-next-line
     setUser(newUser: any) {
       this.user = {
         name: newUser.displayName,
