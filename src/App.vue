@@ -12,8 +12,7 @@ import { defineComponent } from 'vue';
 import AppHeader from '@/components/AppHeader.vue';
 import AppFooter from '@/components/AppFooter.vue';
 import UserStore from '@/store/UserStore';
-import { mapActions, mapState } from 'pinia';
-import User from '@/models/IUser';
+import { mapState, mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'App',
@@ -23,26 +22,25 @@ export default defineComponent({
     AppFooter,
   },
 
-  // Pruebas con con Optional API
-  // Mi modelo de datos
-  data: () => ({
-    myUser: {} as User,
-  }),
-
+  // My LifeHooks
+  // Antes de crearme meto el usuartio en la store
   async created() {
     console.log('APP Created');
+    // De esta manera cargamos el estado inicial de la store
     await this.checkAuth();
-    console.log('APP checkAuth', this.user);
-    this.myUser = await this.actualUser();
-    console.log('APP actualUser', this.myUser);
+    // console.log('APP checkAuth', this.User);
+    //   this.myUser = await this.actualUser();
+    //   console.log('APP actualUser', this.myUser);
   },
 
+  // Mis propiedades computadas
   computed: {
-    ...mapState(UserStore, ['user']),
+    ...mapState(UserStore, ['User']),
   },
 
+  // Mis métodos
   methods: {
-    ...mapActions(UserStore, ['checkAuth', 'actualUser']),
+    ...mapActions(UserStore, ['checkAuth']),
   },
 });
 </script>

@@ -3,11 +3,11 @@
     <span class="title">Vue Kanban</span>
     <!-- Si en vez de URL quiero meter el componente usa
     <router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link> -->
-    <template v-if="actualUser.email">
+    <template v-if="user.email">
       <router-link class="btn-header" :to="{ name: 'Home' }">Mis Paneles</router-link>
       <div class="userinfo">
-        <img :src="actualUser.photoURL" :alt="actualUser.displayName" />
-        <span>{{ actualUser.displayName }}</span>
+        <img :src="user.photoURL" :alt="user.displayName" />
+        <span>{{ user.displayName }}</span>
         <button class="btn-header btn-login" @click="doLogOut">Logout</button>
       </div>
     </template>
@@ -18,92 +18,54 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent, onMounted, reactive,
-} from 'vue';
-import { useRouter } from 'vue-router';
+import { defineComponent } from 'vue';
+
 import UserStore from '@/store/UserStore';
 import { notify } from '@kyvg/vue3-notification';
-import User from '@/models/IUser';
+import { mapState, mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'AppHeader',
 
-  // props: {
-  //   user: {} as PropType<User>,
-  // },
+  // MyLifeHooks
+  mounted() {
+    if (this.user.email) {
+      notify({
+        title: 'Bienvenido/a',
+        text: `Me alegro de verte de nuevo ${this.user.name}`,
+      });
+    }
+  },
 
-  setup() {
-    const userStore = UserStore();
-    const router = useRouter();
-    // usamos reactive porque es un objeto
-    const actualUser = reactive<User>({});
+  // Propiedades computadas
+  computed: {
+    ...mapState(UserStore, ['user']),
+  },
 
-    onMounted(async () => {
-      // eslint-disable-next-line no-use-before-define
-      await getMyActualUser();
-      if (actualUser.email) {
-        notify({
-          title: 'Bienvenido/a',
-          text: `Bienvenido/a a tu panel: ${actualUser.name}`,
-        });
-      }
-      console.log('Header onMounted', actualUser);
-    });
+  // Mis métodos
+  methods: {
+    ...mapActions(UserStore, ['checkAuth', 'logIn', 'logOut']),
 
-    async function doLogIn() {
+    async doLogIn() {
       console.log('Header doLogIn');
       try {
-        const myUser = await userStore.loginGoogle();
-        actualUser.name = myUser.name;
-        actualUser.displayName = myUser.displayName;
-        actualUser.email = myUser.email;
-        actualUser.photoURL = myUser.photoURL;
-        notify({
-          title: 'Bienvenido/a',
-          text: `Bienvenido/a a tu panel: ${actualUser.name}`,
-        });
-        // router.go(0);
-        console.log('Header doLogin ->', actualUser);
+        await this.logIn();
+        this.$router.go(0); // recargamos
+        // console.log('Header doLogin ->', actualUser);
       } catch (error) {
         console.error('Header doLogIn ->', error);
       }
-    }
+    },
 
-    async function doLogOut() {
+    async doLogOut() {
       console.log('Header doLogOut');
       try {
-        await userStore.logoutGoogle();
-        actualUser.name = '';
-        actualUser.displayName = '';
-        actualUser.email = '';
-        actualUser.photoURL = '';
-        notify({
-          title: 'Adiós',
-          text: 'Espero verte pronto',
-          type: 'warn',
-        });
-        // router.go(0);
-        console.log('Header doLogOut -> Ok');
+        await this.logOut();
+        this.$router.go(0); // Recargamos
       } catch (error) {
         console.error('Header doLogOut ->', error);
       }
-    }
-
-    return {
-      actualUser,
-      doLogIn,
-      doLogOut,
-    };
-
-    // Mis auxiliares
-    async function getMyActualUser() {
-      const myUser = await userStore.actualUser();
-      actualUser.name = myUser.name;
-      actualUser.displayName = myUser.displayName;
-      actualUser.email = myUser.email;
-      actualUser.photoURL = myUser.photoURL;
-    }
+    },
   },
 });
 </script>
