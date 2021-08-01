@@ -3,11 +3,11 @@
     <span class="title">Vue Kanban</span>
     <!-- Si en vez de URL quiero meter el componente usa
     <router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link> -->
-    <template v-if="user.email">
+    <template v-if="userStore.user.email">
       <router-link class="btn-header" :to="{ name: 'Home' }">Mis Paneles</router-link>
       <div class="userinfo">
-        <img :src="user.photoURL" :alt="user.displayName" />
-        <span>{{ user.displayName }}</span>
+        <img :src="userStore.user.photoURL" :alt="userStore.user.displayName" />
+        <span>{{ userStore.user.displayName }}</span>
         <button class="btn-header btn-login" @click="doLogOut">Logout</button>
       </div>
     </template>
@@ -18,39 +18,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 import UserStore from '@/store/UserStore';
 import { notify } from '@kyvg/vue3-notification';
-import { mapState, mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'AppHeader',
 
-  // MyLifeHooks
-  mounted() {
-    if (this.user.email) {
-      notify({
-        title: 'Bienvenido/a',
-        text: `Me alegro de verte de nuevo ${this.user.name}`,
-      });
-    }
-  },
+  setup() {
+    const userStore = UserStore();
+    const router = useRouter();
 
-  // Propiedades computadas
-  computed: {
-    ...mapState(UserStore, ['user']),
-  },
+    // My MyLifeHooks
+    onMounted(() => {
+      if (userStore.user.email) {
+        notify({
+          title: 'Bienvenido/a',
+          text: `Me alegro de verte de nuevo ${userStore.user.name}`,
+        });
+      }
+    });
 
-  // Mis métodos
-  methods: {
-    ...mapActions(UserStore, ['checkAuth', 'logIn', 'logOut']),
-
-    async doLogIn() {
+    async function doLogIn() {
       console.log('Header doLogIn');
       try {
-        await this.logIn();
-        this.$router.go(0); // recargamos
+        await userStore.logIn();
+        router.go(0); // recargamos
         // console.log('Header doLogin ->', actualUser);
       } catch (error) {
         notify({
@@ -59,13 +54,13 @@ export default defineComponent({
           type: error,
         });
       }
-    },
+    }
 
-    async doLogOut() {
+    async function doLogOut() {
       console.log('Header doLogOut');
       try {
-        await this.logOut();
-        this.$router.go(0); // Recargamos
+        await userStore.logOut();
+        router.go(0); // Recargamos
       } catch (error) {
         notify({
           title: 'Error',
@@ -73,7 +68,13 @@ export default defineComponent({
           type: error,
         });
       }
-    },
+    }
+
+    return {
+      userStore,
+      doLogIn,
+      doLogOut,
+    };
   },
 });
 </script>
