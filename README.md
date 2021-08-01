@@ -34,7 +34,7 @@ Además se va a implementar siguiendo algunas de las bondades de Vue.js 3 como e
 - [Vue.js 3 ¿Por qué?](https://learnvue.co/2020/01/4-vue3-composition-api-tips-you-should-know/)]
 - [Vue.js 3 Composable Code](https://markus.oberlehner.net/blog/vue-3-composition-api-vs-options-api/)
 
-En este proyecto intercalaremos las dos opciones para ver pros y contras.
+En este proyecto intercalaremos las dos opciones para ver pros y contras. De todas maneras las gran ventaja de Composition es cuando tu componene es grande y quieres organizar la lógica o simplemente compartir usando Mixins.
 
 ### Vuex vs Pinia
 Sabemos que [Vuex](https://vuex.vuejs.org/) es una solución para manejar el Store de nuestra aplicación en Vue.js. Pero conocemos sus debilidades actuales a la hora de manejar TypeScript. De hecho hay que recurrir a algunos trucos, como los decoradores de TypeScript para que no fracasemos en el intento.
