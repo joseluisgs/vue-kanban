@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardCard from '@/components/BoardCard.vue';
 import Board from '@/models/IBoard';
@@ -44,32 +44,8 @@ export default defineComponent({
     const userStore = UserStore();
     const boardsStore = BoardsStore();
     const boardName = ref('');
-    const boards = [
-      {
-        id: Date.now().toString(), name: 'Tareas', createdAt: Date.now(), user: 'pepe@pepe.com',
-      },
-      {
-        id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now(), user: 'pepe@pepe.com',
-      },
-      {
-        id: Date.now().toString(), name: 'Documentos', createdAt: Date.now(), user: 'pepe@pepe.com',
-      },
-    ];
-    // My MyLifeHooks
-    onMounted(() => {
-      // Mensaje de bienvenida
-      if (userStore.user.email) {
-        notify({
-          title: 'Bienvenido/a',
-          text: `Me alegro de verte de nuevo ${userStore.user.name}`,
-        });
 
-        // Cargamos las tareas
-        // boardsStore.setBoards(boards);
-        boardsStore.getBoards(userStore.user.email);
-      }
-    });
-
+    // Mis Métodos
     async function addBoard() {
       console.log('addBoard ->', boardName.value);
       if (boardName.value) {
