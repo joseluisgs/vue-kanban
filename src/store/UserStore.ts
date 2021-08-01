@@ -4,6 +4,7 @@ import User from '@/models/IUser';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
 import Auth from '@/services/Firebase/Auth';
+import BoardsStore from '@/store/BoardsStore';
 
 const UserStore = defineStore({
   // id es único para identificarlo con las DevTools
@@ -21,20 +22,23 @@ const UserStore = defineStore({
   // equivalen a acciones y mutaciones
   actions: {
     // eslint-disable-next-line
-    setUser(newUser: any) {
+    async setUser(newUser: any) {
       this.user = {
         name: newUser.displayName,
         email: newUser.email,
         displayName: newUser.displayName,
         photoURL: newUser.photoURL,
       };
+      // Cargamos sus tableros
+      const boardsStore = BoardsStore();
+      await boardsStore.getBoards(this.user.email);
     },
 
     async checkAuth() {
       Service.auth.onAuthStateChanged(async (user) => {
-        await console.log('UserStore checkAuth ->', user);
+        console.log('UserStore checkAuth ->', user);
         if (user) {
-          this.setUser(user);
+          await this.setUser(user);
         }
       });
     },
@@ -55,7 +59,8 @@ const UserStore = defineStore({
 
     async logOut() {
       await Auth.logoutGoogle();
-      this.user = {};
+      this.user = {} as User;
+      // Libremos los tableros que tenga
     },
 
   },
