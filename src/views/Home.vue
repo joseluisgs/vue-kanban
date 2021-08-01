@@ -1,5 +1,5 @@
 <template>
-  <section v-if="user.email" class="home">
+  <section v-if="userStore.user.email" class="home">
     <div class="home-header">
       <h3>Mis Paneles</h3>
       <input
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardCard from '@/components/BoardCard.vue';
 import Board from '@/models/IBoard';
@@ -40,42 +40,41 @@ export default defineComponent({
     BoardCard,
   },
 
-  // Mi modelo de datos
-  data: () => ({
-    boardName: '',
-    boards: [
+  setup() {
+    const userStore = UserStore();
+    const boardName = ref('');
+    const boards = ref<Board[]>([
       { id: Date.now().toString(), name: 'Tareas', createdAt: Date.now() },
       { id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now() },
       { id: Date.now().toString(), name: 'Documentos', createdAt: Date.now() },
-    ] as Array<Board>,
-  }),
+    ]);
 
-  // Propiedades computadas
-  computed: {
-    ...mapState(UserStore, ['user']),
-  },
-
-  // Mis metodos
-  methods: {
-    addBoard() {
-      console.log('addBoard ->', this.boardName);
-      if (this.boardName) {
-        this.boards.push({ id: Date.now().toString(), name: this.boardName });
+    function addBoard() {
+      console.log('addBoard ->', boardName.value);
+      if (boardName.value) {
+        boards.value.push({ id: Date.now().toString(), name: boardName.value });
         notify({
-          title: 'Pizarra de tareas creada',
-          text: `Se ha creado la pizarra de tareas: ${this.boardName}`,
+          title: 'Panel creado',
+          text: `Se ha creado el panel de tareas: ${boardName.value}`,
           type: 'success',
         });
-        this.boardName = '';
+        boardName.value = '';
       }
-    },
+    }
 
-    deleteBoard(boardId: string) {
+    function deleteBoard(boardId: string) {
       console.log('deleteBoard ->', boardId);
-      this.boards = this.boards.filter((board) => board.id !== boardId);
-    },
-  },
+      boards.value = boards.value.filter((board) => board.id !== boardId);
+    }
 
+    return {
+      userStore,
+      boardName,
+      boards,
+      addBoard,
+      deleteBoard,
+    };
+  },
 });
 </script>
 
