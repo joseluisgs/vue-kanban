@@ -11,7 +11,7 @@
     </div>
     <div class="boards-collections">
       <BoardCard
-        v-for="board in boards"
+        v-for="board in boardsStore.boards"
         :key="board.id"
         :name="board.name"
         :id="board.id"
@@ -25,12 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardCard from '@/components/BoardCard.vue';
 import Board from '@/models/IBoard';
 import UserStore from '@/store/UserStore';
-import { mapState } from 'pinia';
+import BoardsStore from '@/store/BoardsStore';
 
 export default defineComponent({
   name: 'Home',
@@ -42,35 +42,81 @@ export default defineComponent({
 
   setup() {
     const userStore = UserStore();
+    const boardsStore = BoardsStore();
     const boardName = ref('');
-    const boards = ref<Board[]>([
-      { id: Date.now().toString(), name: 'Tareas', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Documentos', createdAt: Date.now() },
-    ]);
+    const boards = [
+      {
+        id: Date.now().toString(), name: 'Tareas', createdAt: Date.now(), user: 'pepe@pepe.com',
+      },
+      {
+        id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now(), user: 'pepe@pepe.com',
+      },
+      {
+        id: Date.now().toString(), name: 'Documentos', createdAt: Date.now(), user: 'pepe@pepe.com',
+      },
+    ];
+    // My MyLifeHooks
+    onMounted(() => {
+      // Mensaje de bienvenida
+      if (userStore.user.email) {
+        notify({
+          title: 'Bienvenido/a',
+          text: `Me alegro de verte de nuevo ${userStore.user.name}`,
+        });
 
-    function addBoard() {
+        // Cargamos las tareas
+        // boardsStore.setBoards(boards);
+        boardsStore.getBoards(userStore.user.email);
+      }
+    });
+
+    async function addBoard() {
       console.log('addBoard ->', boardName.value);
       if (boardName.value) {
-        boards.value.push({ id: Date.now().toString(), name: boardName.value });
-        notify({
-          title: 'Panel creado',
-          text: `Se ha creado el panel de tareas: ${boardName.value}`,
-          type: 'success',
-        });
-        boardName.value = '';
+        // Obtenemos el id
+        try {
+          const boardID = await boardsStore.getNewBoardId();
+          const newBoard = {
+            id: boardID,
+            name: boardName.value,
+            createdAt: Date.now(),
+            user: userStore.user.email,
+          } as Board;
+          // Añadimos el nuevo board
+          await boardsStore.createBoard(newBoard);
+          notify({
+            title: 'Panel creado',
+            text: `Se ha creado el panel de tareas: ${boardName.value}`,
+            type: 'success',
+          });
+          boardName.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
       }
     }
 
-    function deleteBoard(boardId: string) {
-      console.log('deleteBoard ->', boardId);
-      boards.value = boards.value.filter((board) => board.id !== boardId);
+    async function deleteBoard(boardID: string) {
+      console.log('deleteBoard ->', boardID);
+      try {
+        await boardsStore.removeBoard(boardID);
+      } catch (error) {
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
+      }
     }
 
     return {
       userStore,
       boardName,
-      boards,
+      boardsStore,
       addBoard,
       deleteBoard,
     };
