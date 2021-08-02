@@ -56,44 +56,43 @@ export default defineComponent({
     // Añade una tarea
     async function addTask() {
       console.log('addTask ->', title.value);
-      if (title.value) {
-        try {
-          const taskID = await listsStore.getNewTaskId(props.listId);
-          const newTask = {
-            id: taskID,
-            name: title.value,
-            createdAt: Date.now(),
-            list: props.listId,
-            completed: false,
-          } as Task;
-          // Añadimos
-          await listsStore.createTask(props.listId, newTask);
-          notify({
-            title: 'Tarea añadida',
-            text: `Se ha añadido la tarea tareas: ${title.value}`,
-            type: 'success',
-          });
-          title.value = '';
-        } catch (error) {
-          notify({
-            title: 'Error',
-            text: error.message,
-            type: error,
-          });
-        }
-      }
+      // if (title.value) {
+      //   try {
+      //     const taskID = await listsStore.getNewTaskId(props.listId);
+      //     const newTask = {
+      //       id: taskID,
+      //       name: title.value,
+      //       createdAt: Date.now(),
+      //       list: props.listId,
+      //       completed: false,
+      //     } as Task;
+      //     // Añadimos
+      //     await listsStore.createTask(props.listId, newTask);
+      //     notify({
+      //       title: 'Tarea añadida',
+      //       text: `Se ha añadido la tarea tareas: ${title.value}`,
+      //       type: 'success',
+      //     });
+      //     title.value = '';
+      //   } catch (error) {
+      //     notify({
+      //       title: 'Error',
+      //       text: error.message,
+      //       type: error,
+      //     });
+      //   }
     }
 
     // Borra una tarea
     function deleteTask(task: Task) {
       console.log('deleteTask -> ', task);
       // eslint-disable-next-line vue/no-mutating-props
-      props.tasks.splice(props.tasks.indexOf(task), 1);
-      notify({
-        title: 'Tarea eliminada',
-        text: `Se ha eliminado la tarea tareas: ${task.name}`,
-        type: 'error',
-      });
+      // props.tasks.splice(props.tasks.indexOf(task), 1);
+      // notify({
+      //   title: 'Tarea eliminada',
+      //   text: `Se ha eliminado la tarea tareas: ${task.name}`,
+      //   type: 'error',
+      // });
     }
 
     // Marca como completado

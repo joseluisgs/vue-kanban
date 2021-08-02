@@ -2,12 +2,9 @@
 // Un ejemplo de Store con Pinia
 
 import List from '@/models/IList';
-import Task from '@/models/ITask';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
 import Lists from '@/services/Firebase/Lists';
-import Tasks from '@/services/Firebase/Tasks';
-import firebase from 'firebase';
 import TasksStore from '@/store/TasksStore';
 
 const ListsStore = defineStore({
@@ -18,10 +15,14 @@ const ListsStore = defineStore({
     listener: {},
   }),
 
-  // Nos devuelven datos del objeto o el objeto, o computados
+  // Nos devuelven datos del objeto o el objeto, o computados con distintas propiedades de ordenación
   getters: {
     Lists: (state) => state.lists,
-    getListsByBoard: (state) => (boardID: string) => state.lists.filter((list) => list.board === boardID),
+    getListsByBoard: (state) => (boardID: string) => (state.lists.filter((list) => list.board === boardID))
+    // Si lo quiero por orden alfabético
+    // .sort((a, b) => a.name.localeCompare(b.name)),
+    // si la quiero por fecha
+      .sort((a, b) => Number(a.createdAt) - Number(b.createdAt)),
   },
 
   // Mutan el objeto síncrona y asíncronamente,
@@ -112,9 +113,10 @@ const ListsStore = defineStore({
       return Lists.getList(listID);
     },
 
-    async removeAll() {
+    async removeListsByBoard(boardID: string) {
       console.log('ListsStore removeAll');
-      this.lists.forEach(async (list) => {
+      const myLists = this.getListsByBoard(boardID);
+      myLists.forEach(async (list) => {
         await this.removeList(list.id);
       });
     },

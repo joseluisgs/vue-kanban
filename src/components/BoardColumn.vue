@@ -51,7 +51,7 @@ export default defineComponent({
   mounted() {
     console.log(this.lists);
     const index = this.lists.findIndex((list) => list.id === this.listId);
-    this.tasksList = this.lists[index].tasks;
+    // this.tasksList = this.lists[index].tasks;
   },
 
   // Mis métodos

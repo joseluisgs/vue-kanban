@@ -77,9 +77,8 @@ const BoardsStore = defineStore({
     async removeBoard(boardID: string) {
       console.log('BoardsStore removeBoard ->', boardID);
       // Hay que eliminar todas las listas
-      await this.removeLists();
+      await this.removeLists(boardID);
       await Boards.removeBoard(boardID);
-      // this.boards = this.boards.filter((board) => board.id !== boardID);
     },
 
     async getBoards(user: string): Promise<any> {
@@ -115,9 +114,9 @@ const BoardsStore = defineStore({
       return Boards.getBoard(boardID);
     },
 
-    async removeLists() {
+    async removeLists(boardID: string) {
       const listsStore = ListsStore();
-      await listsStore.removeAll();
+      await listsStore.removeListsByBoard(boardID);
     },
   },
 });
