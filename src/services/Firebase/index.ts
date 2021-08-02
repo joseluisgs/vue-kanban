@@ -28,8 +28,10 @@ const providerGoogle = new firebase.auth.GoogleAuthProvider();
 const user = auth.currentUser;
 
 // Colecciones de documentos a usar
-const usersCollection = db.collection('vuekanban-users');
-const boardsCollection = db.collection('vuetalk-boards');
+// const usersCollection = db.collection('vuekanban-users');
+const boardsCollection = db.collection('vuekanban-boards');
+const listsCollection = db.collection('vuekanban-lists');
+const tasksCollection = db.collection('vuekanban-tasks');
 
 // const likesCollection = db.collection('likes');
 
@@ -52,8 +54,10 @@ export default {
   // Proveedores de servicio para identificarse
   providerGoogle,
   // Colecciones
-  usersCollection,
+  // usersCollection,
   boardsCollection,
+  listsCollection,
+  tasksCollection,
   // Almacenamiento
   // roomsStorage,
   // Para la resolución inversa
