@@ -11,6 +11,7 @@ const UserStore = defineStore({
   id: 'UserStore',
   state: () => ({
     user: {} as User,
+    listener: {},
   }),
 
   // Nos devuelven datos del objeto o el objeto, o computados
@@ -31,7 +32,7 @@ const UserStore = defineStore({
       };
       // Cargamos sus tableros
       const boardsStore = BoardsStore();
-      await boardsStore.getBoards(this.user.email);
+      this.listener = await boardsStore.getBoards(this.user.email);
     },
 
     async checkAuth() {
@@ -61,6 +62,8 @@ const UserStore = defineStore({
       await Auth.logoutGoogle();
       this.user = {} as User;
       // Libremos los tableros que tenga
+      // Nos cargamos el listener si es necesario para no recibir mas
+      this.listener = {};
     },
 
   },

@@ -78,13 +78,13 @@ const BoardsStore = defineStore({
       // this.boards = this.boards.filter((board) => board.id !== boardID);
     },
 
-    async getBoards(user: string) {
+    async getBoards(user: string): Promise<any> {
       // console.log('BoardsStore getBoards ->', user);
       // const boards = await Boards.getBoards(user);
       // this.boards = boards;
 
       // Detectar cambios en tiempo real
-      Service.boardsCollection.where('user', '==', user).onSnapshot((querySnapshot) => {
+      return Service.boardsCollection.where('user', '==', user).onSnapshot((querySnapshot) => {
         querySnapshot.docChanges().forEach((change) => {
           if (change.type === 'added') {
             console.log('Boards Store Change Added --> ', change.doc.data());
