@@ -9,6 +9,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { notify } from '@kyvg/vue3-notification';
 import AppHeader from '@/components/AppHeader.vue';
 import AppFooter from '@/components/AppFooter.vue';
 import UserStore from '@/store/UserStore';
@@ -28,14 +29,17 @@ export default defineComponent({
     console.log('APP Created');
     // De esta manera cargamos el estado inicial de la store
     await this.checkAuth();
-    // console.log('APP checkAuth', this.User);
-    //   this.myUser = await this.actualUser();
-    //   console.log('APP actualUser', this.myUser);
+    if (this.user.email) {
+      notify({
+        title: 'Bienvenido/a',
+        text: `Me alegro de verte de nuevo ${this.user.name}`,
+      });
+    }
   },
 
   // Mis propiedades computadas
   computed: {
-    ...mapState(UserStore, ['User']),
+    ...mapState(UserStore, ['user']),
   },
 
   // Mis métodos

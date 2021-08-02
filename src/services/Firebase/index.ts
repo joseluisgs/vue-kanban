@@ -51,7 +51,7 @@ export default {
   defaultProject,
   // Proveedores de servicio para identificarse
   providerGoogle,
-  // Collecciones
+  // Colecciones
   usersCollection,
   boardsCollection,
   // Almacenamiento

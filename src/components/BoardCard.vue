@@ -35,10 +35,10 @@ export default defineComponent({
       // Eliminamos card y las columnas y tareas asociadas
       /* eslint-disable no-alert */
       // eslint-disable-next-line no-restricted-globals
-      if (confirm('¿Eliminar tarjeta?')) {
+      if (confirm('¿Eliminar panel')) {
         notify({
-          title: 'Pizarra eliminada',
-          text: 'Se ha eliminado la pizarra con sus tarjetas de tareas asociadas',
+          title: 'Panel eliminado',
+          text: `Se ha eliminado el panel ${props.name} con sus tarjetas de tareas asociadas`,
           type: 'error',
         });
         emit('delete-board', props.id);

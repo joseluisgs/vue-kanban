@@ -1,7 +1,7 @@
 interface IUser {
   name?: string;
-  email?: string;
-  displayName?: string;
+  email: string;
+  displayName: string;
   photoURL?: string;
 }
 

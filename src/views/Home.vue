@@ -1,5 +1,5 @@
 <template>
-  <section v-if="user.email" class="home">
+  <section v-if="userStore.user.email" class="home">
     <div class="home-header">
       <h3>Mis Paneles</h3>
       <input
@@ -11,7 +11,7 @@
     </div>
     <div class="boards-collections">
       <BoardCard
-        v-for="board in boards"
+        v-for="board in boardsStore.boards"
         :key="board.id"
         :name="board.name"
         :id="board.id"
@@ -25,12 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardCard from '@/components/BoardCard.vue';
 import Board from '@/models/IBoard';
 import UserStore from '@/store/UserStore';
-import { mapState } from 'pinia';
+import BoardsStore from '@/store/BoardsStore';
 
 export default defineComponent({
   name: 'Home',
@@ -40,42 +40,63 @@ export default defineComponent({
     BoardCard,
   },
 
-  // Mi modelo de datos
-  data: () => ({
-    boardName: '',
-    boards: [
-      { id: Date.now().toString(), name: 'Tareas', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Proyectos', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Documentos', createdAt: Date.now() },
-    ] as Array<Board>,
-  }),
+  setup() {
+    const userStore = UserStore();
+    const boardsStore = BoardsStore();
+    const boardName = ref('');
 
-  // Propiedades computadas
-  computed: {
-    ...mapState(UserStore, ['user']),
-  },
-
-  // Mis metodos
-  methods: {
-    addBoard() {
-      console.log('addBoard ->', this.boardName);
-      if (this.boardName) {
-        this.boards.push({ id: Date.now().toString(), name: this.boardName });
-        notify({
-          title: 'Pizarra de tareas creada',
-          text: `Se ha creado la pizarra de tareas: ${this.boardName}`,
-          type: 'success',
-        });
-        this.boardName = '';
+    // Mis Métodos
+    async function addBoard() {
+      console.log('addBoard ->', boardName.value);
+      if (boardName.value) {
+        // Obtenemos el id
+        try {
+          const boardID = await boardsStore.getNewBoardId();
+          const newBoard = {
+            id: boardID,
+            name: boardName.value,
+            createdAt: Date.now(),
+            user: userStore.user.email,
+          } as Board;
+          // Añadimos el nuevo board
+          await boardsStore.createBoard(newBoard);
+          notify({
+            title: 'Panel creado',
+            text: `Se ha creado el panel de tareas: ${boardName.value}`,
+            type: 'success',
+          });
+          boardName.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
       }
-    },
+    }
 
-    deleteBoard(boardId: string) {
-      console.log('deleteBoard ->', boardId);
-      this.boards = this.boards.filter((board) => board.id !== boardId);
-    },
+    async function deleteBoard(boardID: string) {
+      console.log('deleteBoard ->', boardID);
+      try {
+        await boardsStore.removeBoard(boardID);
+      } catch (error) {
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
+      }
+    }
+
+    return {
+      userStore,
+      boardName,
+      boardsStore,
+      addBoard,
+      deleteBoard,
+    };
   },
-
 });
 </script>
 
