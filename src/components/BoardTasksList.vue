@@ -28,6 +28,7 @@ import Task from '@/models/ITask';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { notify } from '@kyvg/vue3-notification';
+import ListsStore from '@/store/ListsStore';
 
 dayjs.extend(relativeTime);
 
@@ -47,27 +48,38 @@ export default defineComponent({
   },
 
   setup(props) {
+    const listsStore = ListsStore();
     // Mis datos
     const title = ref('');
 
     // Mis métodos
     // Añade una tarea
-    function addTask() {
+    async function addTask() {
       console.log('addTask ->', title.value);
       if (title.value) {
-        // eslint-disable-next-line vue/no-mutating-props
-        props.tasks.push({
-          id: Date.now().toString(),
-          name: title.value,
-          completed: false,
-          createdAt: Date.now(),
-        });
-        notify({
-          title: 'Tarea añadida',
-          text: `Se ha añadido la tarea tareas: ${title.value}`,
-          type: 'success',
-        });
-        title.value = '';
+        try {
+          const taskID = await listsStore.getNewTaskId(props.listId);
+          const newTask = {
+            id: taskID,
+            name: title.value,
+            createdAt: Date.now(),
+            list: props.listId,
+          } as Task;
+          // Añadimos
+          await listsStore.createTask(props.listId, newTask);
+          notify({
+            title: 'Tarea añadida',
+            text: `Se ha añadido la tarea tareas: ${title.value}`,
+            type: 'success',
+          });
+          title.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
       }
     }
 

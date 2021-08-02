@@ -13,6 +13,7 @@ import { defineComponent, ref } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardTasksList from '@/components/BoardTasksList.vue';
 import Task from '@/models/ITask';
+import ListsStore from '@/store/ListsStore';
 
 export default defineComponent({
   name: 'BoardColumn',
@@ -47,18 +48,21 @@ export default defineComponent({
         name: 'Apreder Vue.js',
         completed: false,
         createdAt: Date.now(),
+        list: props.listId,
       },
       {
         id: Date.now().toString(),
         name: 'Dominar CSS Flex',
         completed: false,
         createdAt: Date.now(),
+        list: props.listId,
       },
       {
         id: Date.now().toString(),
         name: 'Maquetar con Tailwind',
         completed: true,
         createdAt: Date.now(),
+        list: props.listId,
       },
     ]);
 

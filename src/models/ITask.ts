@@ -1,5 +1,5 @@
 interface ITask {
-  id?: string;
+  id: string;
   name: string;
   completed: boolean;
   createdAt?: number;

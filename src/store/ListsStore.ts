@@ -2,9 +2,11 @@
 // Un ejemplo de Store con Pinia
 
 import List from '@/models/IList';
+import Task from '@/models/ITask';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
 import Lists from '@/services/Firebase/Lists';
+import Tasks from '@/services/Firebase/Tasks';
 
 const ListsStore = defineStore({
   // id es único para identificarlo con las DevTools
@@ -34,28 +36,32 @@ const ListsStore = defineStore({
       return Lists.getNewId();
     },
 
-    addList(newList: any) {
+    async addList(newList: any) {
       console.log('Lists Store addList ->', newList);
       const myList = this.lists.find((list) => list.id === newList.id);
       if (!myList) {
+        const myTasks = await this.searchTasks(newList.id);
         this.lists.push({
           id: newList.id,
           name: newList.name,
           createdAt: newList.createdAt,
           board: newList.board,
+          tasks: myTasks,
         });
       }
     },
 
-    updateList(updateList: any) {
+    async updateList(updateList: any) {
       console.log('Lists Store updateList ->', updateList);
       const index = this.lists.findIndex((list) => list.id === updateList.id);
       if (index !== -1) {
+        const myTasks = await this.searchTasks(updateList.id);
         this.lists[index] = {
           id: updateList.id,
           name: updateList.name,
           createdAt: updateList.createdAt,
           board: updateList.board,
+          tasks: myTasks,
         };
       }
     },
@@ -77,6 +83,7 @@ const ListsStore = defineStore({
     async removeList(listID: string) {
       console.log('ListsStore removeBoard ->', listID);
       // Hay que borrar antes todas las tareas
+      await this.removeTasks(listID);
       await Lists.removeList(listID);
     },
 
@@ -84,14 +91,14 @@ const ListsStore = defineStore({
       // Detectar cambios en tiempo real
       return Service.listsCollection.where('board', '==', boardID)
         .onSnapshot((querySnapshot) => {
-          querySnapshot.docChanges().forEach((change) => {
+          querySnapshot.docChanges().forEach(async (change) => {
             if (change.type === 'added') {
               console.log('Lists Store Change Added --> ', change.doc.data());
-              this.addList(change.doc.data());
+              await this.addList(change.doc.data());
             }
             if (change.type === 'modified') {
               console.log('Lists Store Change Modified --> ', change.doc.data());
-              this.updateList(change.doc.data());
+              await this.updateList(change.doc.data());
             }
             if (change.type === 'removed') {
               console.log('Lists Store Change Modified --> ', change.doc.data());
@@ -106,6 +113,34 @@ const ListsStore = defineStore({
       this.lists.forEach(async (list) => {
         await this.removeList(list.id);
       });
+    },
+
+    async removeTasks(listID: string) {
+      console.log('ListsStore removeTasks');
+      const index = this.lists.findIndex((list) => list.id === listID);
+      if (index !== -1) {
+        this.lists[index].tasks.forEach(async (task) => {
+          await Tasks.removeTask(this.lists[index].id, task.id);
+        });
+        this.lists[index].tasks = [];
+      }
+    },
+
+    async searchTasks(listID: string) {
+      return Tasks.getTasks(listID);
+    },
+
+    async getNewTaskId(listID: string) {
+      return Tasks.getNewId(listID);
+    },
+
+    async createTask(listID: string, task: Task) {
+      console.log('ListsStore addTask');
+      const index = this.lists.findIndex((list) => list.id === listID);
+      if (index !== -1) {
+        await Tasks.createTask(listID, task);
+        this.lists[index].tasks.push(task);
+      }
     },
   },
 });
