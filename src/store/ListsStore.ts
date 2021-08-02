@@ -8,17 +8,20 @@ import Service from '@/services/Firebase';
 import Lists from '@/services/Firebase/Lists';
 import Tasks from '@/services/Firebase/Tasks';
 import firebase from 'firebase';
+import TasksStore from '@/store/TasksStore';
 
 const ListsStore = defineStore({
   // id es único para identificarlo con las DevTools
   id: 'ListsStore',
   state: () => ({
     lists: [] as List[],
+    listener: {},
   }),
 
   // Nos devuelven datos del objeto o el objeto, o computados
   getters: {
     Lists: (state) => state.lists,
+    getListsByBoard: (state) => (boardID: string) => state.lists.filter((list) => list.board === boardID),
   },
 
   // Mutan el objeto síncrona y asíncronamente,
@@ -27,10 +30,6 @@ const ListsStore = defineStore({
     // eslint-disable-next-line
     setLists(newLists: List[]) {
       this.lists = newLists;
-    },
-
-    clearLists() {
-      this.lists = [] as List[];
     },
 
     async getNewListId(): Promise<any> {
@@ -46,7 +45,6 @@ const ListsStore = defineStore({
           name: newList.name,
           createdAt: newList.createdAt,
           board: newList.board,
-          tasks: [],
         });
       }
     },
@@ -60,13 +58,12 @@ const ListsStore = defineStore({
           name: updateList.name,
           createdAt: updateList.createdAt,
           board: updateList.board,
-          tasks: [],
         };
       }
     },
 
     deleteList(deleteList: any) {
-      console.log('Lists Store deleteBoard ->', deleteList);
+      console.log('Lists Store deleteList ->', deleteList);
       const index = this.lists.findIndex((list) => list.id === deleteList.id);
       if (index !== -1) {
         this.lists.splice(index, 1);
@@ -80,16 +77,16 @@ const ListsStore = defineStore({
     },
 
     async removeList(listID: string) {
-      console.log('ListsStore removeBoard ->', listID);
+      console.log('ListsStore removeList ->', listID);
       // Hay que borrar antes todas las tareas
-      await this.removeTasks(listID);
+      // await this.removeTasks();
       await Lists.removeList(listID);
     },
 
-    async getLists(boardID: string): Promise<any> {
+    async getLists(): Promise<any> {
       // Detectar cambios en tiempo real
-      return Service.listsCollection.where('board', '==', boardID)
-        .onSnapshot((querySnapshot) => {
+      this.listener = Service.listsCollection
+        .onSnapshot(async (querySnapshot) => {
           querySnapshot.docChanges().forEach(async (change) => {
             if (change.type === 'added') {
               console.log('Lists Store Change Added --> ', change.doc.data());
@@ -103,9 +100,16 @@ const ListsStore = defineStore({
               console.log('Lists Store Change Modified --> ', change.doc.data());
               this.deleteList(change.doc.data());
             }
-            await this.getMyTasks(change.doc.data().id);
           });
+          // Aqui cargo todas las tareas
+          const tasksStore = TasksStore();
+          console.log('ListStore getTasks');
+          await tasksStore.getTasks();
         });
+    },
+
+    async getList(listID: string): Promise<any> {
+      return Lists.getList(listID);
     },
 
     async removeAll() {
@@ -113,54 +117,6 @@ const ListsStore = defineStore({
       this.lists.forEach(async (list) => {
         await this.removeList(list.id);
       });
-    },
-
-    async removeTasks(listID: string) {
-      console.log('ListsStore removeTasks');
-      const index = this.lists.findIndex((list) => list.id === listID);
-      if (index !== -1) {
-        this.lists[index].tasks.forEach(async (task) => {
-          await Tasks.removeTask(this.lists[index].id, task.id);
-        });
-        this.lists[index].tasks = [];
-      }
-    },
-
-    async getNewTaskId(listID: string) {
-      return Tasks.getNewId(listID);
-    },
-
-    async createTask(listID: string, task: Task) {
-      console.log('ListsStore addTask');
-      const index = this.lists.findIndex((list) => list.id === listID);
-      if (index !== -1) {
-        await Tasks.createTask(listID, task);
-        this.lists[index].tasks.push(task);
-      }
-    },
-
-    async getMyTasks(listID: string) {
-      // Nos traemos todos los mensajes
-      Service.listsCollection.doc(listID).collection('tasks')
-        .where('list', '==', listID)
-        .onSnapshot(((querySnapshot) => {
-          const tasks: firebase.firestore.DocumentData[] = [];
-          // Para cada tarea recibida
-          querySnapshot.forEach((doc) => {
-            const task = doc.data();
-            task.id = doc.id;
-            tasks.push(task);
-          });
-          this.setMyTasks(listID, tasks);
-        }));
-    },
-
-    setMyTasks(listID: string, tasks: any[]) {
-      const index = this.lists.findIndex((list) => list.id === listID);
-      if (index !== -1) {
-        console.log('setMyTasks ->', listID, tasks);
-        this.lists[index].tasks = tasks;
-      }
     },
   },
 });

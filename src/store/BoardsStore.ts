@@ -12,6 +12,7 @@ const BoardsStore = defineStore({
   id: 'BoardsStore',
   state: () => ({
     boards: [] as Board[],
+    listener: {},
   }),
 
   // Nos devuelven datos del objeto o el objeto, o computados
@@ -87,8 +88,8 @@ const BoardsStore = defineStore({
       // this.boards = boards;
 
       // Detectar cambios en tiempo real
-      return Service.boardsCollection.where('user', '==', user)
-        .onSnapshot((querySnapshot) => {
+      this.listener = await Service.boardsCollection.where('user', '==', user)
+        .onSnapshot(async (querySnapshot) => {
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === 'added') {
               console.log('Boards Store Change Added --> ', change.doc.data());
@@ -103,6 +104,10 @@ const BoardsStore = defineStore({
               this.deleteBoard(change.doc.data());
             }
           });
+          // Aqui cargo todas las listas
+          const listsStore = ListsStore();
+          console.log('BoardsStore getList');
+          await listsStore.getLists();
         });
     },
 
