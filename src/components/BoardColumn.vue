@@ -4,7 +4,9 @@
       <h3>{{ name }}</h3>
       <span class="delete" @click="deleteList"> X </span>
     </header>
-    <BoardTasksList :listId="listId" :tasks="tasksList"> </BoardTasksList>
+    <BoardTasksList
+      :listId="listId"
+      :tasks="getTasksByList(listId)" />
   </section>
 </template>
 
@@ -13,7 +15,7 @@ import { defineComponent } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardTasksList from '@/components/BoardTasksList.vue';
 import Task from '@/models/ITask';
-import ListsStore from '@/store/ListsStore';
+import TasksStore from '@/store/TasksStore';
 import { mapState } from 'pinia';
 
 export default defineComponent({
@@ -22,10 +24,6 @@ export default defineComponent({
   // Mis propiedades y verificación de tipos
   props: {
     listId: {
-      type: String,
-      required: true,
-    },
-    boardId: {
       type: String,
       required: true,
     },
@@ -40,24 +38,12 @@ export default defineComponent({
     BoardTasksList,
   },
 
-  data: () => ({
-    tasksList: [] as Task[],
-  }),
-
   computed: {
-    ...mapState(ListsStore, ['lists']),
-  },
-
-  mounted() {
-    console.log(this.lists);
-    const index = this.lists.findIndex((list) => list.id === this.listId);
-    // this.tasksList = this.lists[index].tasks;
+    ...mapState(TasksStore, ['getTasksByList']),
   },
 
   // Mis métodos
   methods: {
-    // ...mapActions(ListsStore, ['getMyTasksList']),
-
     deleteList() {
       // Eliminamos las tareas de la columna
       /* eslint-disable no-alert */

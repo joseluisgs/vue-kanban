@@ -28,7 +28,7 @@ import Task from '@/models/ITask';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { notify } from '@kyvg/vue3-notification';
-import ListsStore from '@/store/ListsStore';
+import TasksStore from '@/store/TasksStore';
 
 dayjs.extend(relativeTime);
 
@@ -42,45 +42,46 @@ export default defineComponent({
       required: true,
     },
     tasks: {
-      type: Array as () => Array<Task>,
+      type: Array as () => Array<Task>, // o si es un objeto complejp Object as PropType<MiInterface>
       required: true,
     },
   },
 
   setup(props) {
-    const listsStore = ListsStore();
     // Mis datos
     const title = ref('');
-
+    const tasksStore = TasksStore();
     // Mis métodos
     // Añade una tarea
     async function addTask() {
       console.log('addTask ->', title.value);
-      // if (title.value) {
-      //   try {
-      //     const taskID = await listsStore.getNewTaskId(props.listId);
-      //     const newTask = {
-      //       id: taskID,
-      //       name: title.value,
-      //       createdAt: Date.now(),
-      //       list: props.listId,
-      //       completed: false,
-      //     } as Task;
-      //     // Añadimos
-      //     await listsStore.createTask(props.listId, newTask);
-      //     notify({
-      //       title: 'Tarea añadida',
-      //       text: `Se ha añadido la tarea tareas: ${title.value}`,
-      //       type: 'success',
-      //     });
-      //     title.value = '';
-      //   } catch (error) {
-      //     notify({
-      //       title: 'Error',
-      //       text: error.message,
-      //       type: error,
-      //     });
-      //   }
+      if (title.value) {
+        try {
+          const taskID = await tasksStore.getNewTaskId(props.listId);
+          const newTask = {
+            id: taskID,
+            name: title.value,
+            createdAt: Date.now(),
+            list: props.listId,
+            completed: false,
+          } as Task;
+          // Añadimos
+          // console.log('addTask ->', newTask);
+          await tasksStore.createTask(newTask);
+          notify({
+            title: 'Tarea añadida',
+            text: `Se ha añadido la tarea tareas: ${title.value}`,
+            type: 'success',
+          });
+          title.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
+      }
     }
 
     // Borra una tarea
@@ -96,11 +97,11 @@ export default defineComponent({
     }
 
     // Marca como completado
-    function completedTask(task: Task) {
+    async function completedTask(task: Task) {
       console.log('completedTask -> ', task);
       /* eslint-disable no-param-reassign */
       task.completed = !task.completed;
-      task.createdAt = Date.now();
+      await tasksStore.createTask(task);
     }
 
     // tiempo

@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Un ejemplo de Store con Pinia
 
-import List from '@/models/IList';
 import Task from '@/models/ITask';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
-import Lists from '@/services/Firebase/Lists';
 import Tasks from '@/services/Firebase/Tasks';
-import firebase from 'firebase';
 
 const TasksStore = defineStore({
   // id es único para identificarlo con las DevTools
@@ -20,6 +17,11 @@ const TasksStore = defineStore({
   // Nos devuelven datos del objeto o el objeto, o computados
   getters: {
     Tasks: (state) => state.tasks,
+    getTasksByList: (state) => (listID: string) => (state.tasks.filter((task) => task.list === listID))
+      // Si lo quiero por orden alfabético
+      // .sort((a, b) => a.name.localeCompare(b.name)),
+      // si la quiero por fecha
+      .sort((a, b) => Number(a.createdAt) - Number(b.createdAt)),
   },
   actions: {
     setTasks(newTasks: Task[]) {
@@ -30,7 +32,7 @@ const TasksStore = defineStore({
       this.tasks = [] as Task[];
     },
 
-    async getNewTTaskd(listId: string): Promise<any> {
+    async getNewTaskId(listId: string): Promise<any> {
       return Tasks.getNewId(listId);
     },
 
@@ -81,9 +83,15 @@ const TasksStore = defineStore({
       await Tasks.removeTask(myTask);
     },
 
+    // async setTask(myTask: Task) {
+    //   console.log('TasksStore removeTask ->', myTask);
+    //   // Hay que borrarTasks todas las tareas
+    //   await Tasks.removeTask(myTask);
+    // },
+
     async getTasks(): Promise<any> {
-      // Detectar cambios en tiempo real
-      this.listener = Service.listsCollection
+      // Detectar cambios en tiempo real de una sub o colleccion concreta
+      this.listener = Service.db.collectionGroup('tasks')
         .onSnapshot((querySnapshot) => {
           querySnapshot.docChanges().forEach(async (change) => {
             if (change.type === 'added') {
