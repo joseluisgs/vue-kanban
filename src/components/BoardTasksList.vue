@@ -64,6 +64,7 @@ export default defineComponent({
             name: title.value,
             createdAt: Date.now(),
             list: props.listId,
+            completed: false,
           } as Task;
           // Añadimos
           await listsStore.createTask(props.listId, newTask);

@@ -9,11 +9,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardTasksList from '@/components/BoardTasksList.vue';
 import Task from '@/models/ITask';
 import ListsStore from '@/store/ListsStore';
+import { mapState } from 'pinia';
 
 export default defineComponent({
   name: 'BoardColumn',
@@ -39,54 +40,38 @@ export default defineComponent({
     BoardTasksList,
   },
 
-  setup(props, { emit }) {
-    console.log(props.boardId);
-    // Mis datos
-    const tasksList = ref<Task[]>([
-      {
-        id: Date.now().toString(),
-        name: 'Apreder Vue.js',
-        completed: false,
-        createdAt: Date.now(),
-        list: props.listId,
-      },
-      {
-        id: Date.now().toString(),
-        name: 'Dominar CSS Flex',
-        completed: false,
-        createdAt: Date.now(),
-        list: props.listId,
-      },
-      {
-        id: Date.now().toString(),
-        name: 'Maquetar con Tailwind',
-        completed: true,
-        createdAt: Date.now(),
-        list: props.listId,
-      },
-    ]);
+  data: () => ({
+    tasksList: [] as Task[],
+  }),
 
-    // Mis métodos
-    function deleteList() {
+  computed: {
+    ...mapState(ListsStore, ['lists']),
+  },
+
+  mounted() {
+    console.log(this.lists);
+    const index = this.lists.findIndex((list) => list.id === this.listId);
+    this.tasksList = this.lists[index].tasks;
+  },
+
+  // Mis métodos
+  methods: {
+    // ...mapActions(ListsStore, ['getMyTasksList']),
+
+    deleteList() {
       // Eliminamos las tareas de la columna
       /* eslint-disable no-alert */
       // eslint-disable-next-line no-restricted-globals
       if (confirm('¿Eliminar tarjeta de tareas?')) {
-        tasksList.value = [];
+        // this.lists = [] as Task[];
         notify({
           title: 'Tarjeta de tareas eliminada',
           text: 'Se ha eliminado tarjeta y todas sus tareas asociadas',
           type: 'error',
         });
-        emit('delete-list', props.listId);
+        this.$emit('delete-list', this.listId);
       }
-    }
-
-    // Mi visibilidad
-    return {
-      tasksList,
-      deleteList,
-    };
+    },
   },
 });
 </script>

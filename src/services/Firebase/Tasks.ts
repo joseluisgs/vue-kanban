@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import List from '@/models/IList';
 import Task from '@/models/ITask';
 import Service from './index';
 // Recurso
@@ -31,19 +30,17 @@ export default {
 
   async getTasks(listID: string): Promise<any> {
     const tasks = [] as Task[];
-    Lists.doc(listID).collection('tasks')
-      .where('list', '==', listID)
-      .onSnapshot((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          tasks.push({
-            id: doc.data().id,
-            name: doc.data().title,
-            createdAt: doc.data().createdAt,
-            completed: doc.data().completed,
-            list: doc.data().list,
-          });
-        });
+    const querySnapshot = await Lists.doc(listID).collection('tasks')
+      .where('list', '==', listID).get();
+    querySnapshot.forEach(async (doc) => {
+      await tasks.push({
+        id: doc.id,
+        name: doc.data().name,
+        createdAt: doc.data().createdAt,
+        list: doc.data().list,
+        completed: doc.data().completed,
       });
+    });
     return tasks;
   },
 };

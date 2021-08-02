@@ -16,7 +16,7 @@
     </div>
     <div class="board-container">
       <BoardColumn
-        v-for="list in listsStore.lists"
+        v-for="list in lists"
         :key="list.id"
         :listId="list.id"
         :name="list.name"
@@ -35,7 +35,7 @@ import BoardColumn from '@/components/BoardColumn.vue';
 import List from '@/models/IList';
 import ListsStore from '@/store/ListsStore';
 import BoardsStore from '@/store/BoardsStore';
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 
 export default defineComponent({
   name: 'Board',
@@ -74,9 +74,14 @@ export default defineComponent({
       this.boardName = this.name;
     }
 
-    // Obtenemos las tareas
+    // Obtenemos las istas y las tareas asociadas
     this.clearLists();
     await this.getLists(this.id);
+    console.log('Board Created ->', this.lists);
+  },
+
+  computed: {
+    ...mapState(ListsStore, ['lists']),
   },
 
   // Mis métodos
