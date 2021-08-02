@@ -85,15 +85,23 @@ export default defineComponent({
     }
 
     // Borra una tarea
-    function deleteTask(task: Task) {
+    async function deleteTask(task: Task) {
       console.log('deleteTask -> ', task);
       // eslint-disable-next-line vue/no-mutating-props
-      // props.tasks.splice(props.tasks.indexOf(task), 1);
-      // notify({
-      //   title: 'Tarea eliminada',
-      //   text: `Se ha eliminado la tarea tareas: ${task.name}`,
-      //   type: 'error',
-      // });
+      try {
+        notify({
+          title: 'Tarea eliminada',
+          text: `Se ha eliminado la tarea tareas: ${task.name}`,
+          type: 'error',
+        });
+        await tasksStore.removeTask(task);
+      } catch (error) {
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
+      }
     }
 
     // Marca como completado

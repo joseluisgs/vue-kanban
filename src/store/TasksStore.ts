@@ -83,14 +83,10 @@ const TasksStore = defineStore({
       await Tasks.removeTask(myTask);
     },
 
-    // async setTask(myTask: Task) {
-    //   console.log('TasksStore removeTask ->', myTask);
-    //   // Hay que borrarTasks todas las tareas
-    //   await Tasks.removeTask(myTask);
-    // },
-
     async getTasks(): Promise<any> {
-      // Detectar cambios en tiempo real de una sub o colleccion concreta
+      // Detectar cambios en tiempo real de una sub o colleccion concreta. Lo hago así para no navegar con los id de la lista
+      // https://firebase.google.com/docs/firestore/query-data/queries
+      // Para qeu funcione bien pues se traería todas, lo mejor es filtarlas con un where y ponerle a la tarea el autor/usuario
       this.listener = Service.db.collectionGroup('tasks')
         .onSnapshot((querySnapshot) => {
           querySnapshot.docChanges().forEach(async (change) => {
