@@ -12,9 +12,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { notify } from '@kyvg/vue3-notification';
 import BoardTasksList from '@/components/BoardTasksList.vue';
-import Task from '@/models/ITask';
 import TasksStore from '@/store/TasksStore';
 import { mapState } from 'pinia';
 

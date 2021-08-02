@@ -26,10 +26,12 @@ import { defineComponent, ref } from 'vue';
 import Task from '@/models/ITask';
 // Librería de tiempo y su plugin de tiempo relativo
 import dayjs from 'dayjs';
+import 'dayjs/locale/es';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { notify } from '@kyvg/vue3-notification';
 import TasksStore from '@/store/TasksStore';
 
+dayjs.locale('es');
 dayjs.extend(relativeTime);
 
 export default defineComponent({
