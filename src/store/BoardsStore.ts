@@ -5,6 +5,7 @@ import Board from '@/models/IBoard';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
 import Boards from '@/services/Firebase/Boards';
+import ListsStore from '@/store/ListsStore';
 
 const BoardsStore = defineStore({
   // id es único para identificarlo con las DevTools
@@ -74,6 +75,8 @@ const BoardsStore = defineStore({
 
     async removeBoard(boardID: string) {
       console.log('BoardsStore removeBoard ->', boardID);
+      // Hay que eliminar todas las listas
+      await this.removeLists();
       await Boards.removeBoard(boardID);
       // this.boards = this.boards.filter((board) => board.id !== boardID);
     },
@@ -84,26 +87,32 @@ const BoardsStore = defineStore({
       // this.boards = boards;
 
       // Detectar cambios en tiempo real
-      return Service.boardsCollection.where('user', '==', user).onSnapshot((querySnapshot) => {
-        querySnapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
-            console.log('Boards Store Change Added --> ', change.doc.data());
-            this.addBoard(change.doc.data());
-          }
-          if (change.type === 'modified') {
-            console.log('Boards Store Change Modified --> ', change.doc.data());
-            this.updateBoard(change.doc.data());
-          }
-          if (change.type === 'removed') {
-            console.log('Boards Store Change Modified --> ', change.doc.data());
-            this.deleteBoard(change.doc.data());
-          }
+      return Service.boardsCollection.where('user', '==', user)
+        .onSnapshot((querySnapshot) => {
+          querySnapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+              console.log('Boards Store Change Added --> ', change.doc.data());
+              this.addBoard(change.doc.data());
+            }
+            if (change.type === 'modified') {
+              console.log('Boards Store Change Modified --> ', change.doc.data());
+              this.updateBoard(change.doc.data());
+            }
+            if (change.type === 'removed') {
+              console.log('Boards Store Change Modified --> ', change.doc.data());
+              this.deleteBoard(change.doc.data());
+            }
+          });
         });
-      });
     },
 
     async getBoard(boardID: string): Promise<any> {
       return Boards.getBoard(boardID);
+    },
+
+    async removeLists() {
+      const listsStore = ListsStore();
+      await listsStore.removeAll();
     },
   },
 });
