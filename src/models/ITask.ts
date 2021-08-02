@@ -2,7 +2,7 @@ interface ITask {
   id: string;
   name: string;
   completed: boolean;
-  createdAt?: number;
+  createdAt: number;
   list: string;
 }
 

@@ -1,7 +1,7 @@
 interface IBoard {
   id: string;
   name: string;
-  createdAt?: number;
+  createdAt: number;
   user: string;
 }
 
