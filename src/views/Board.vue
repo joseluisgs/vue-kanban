@@ -64,20 +64,25 @@ export default defineComponent({
   async created() {
     // esto es por si entramos directamente en el enlace
     if (!this.name) {
-      const myBoard = await this.getBoard(this.id);
-      this.boardName = myBoard.name;
+      try {
+        const myBoard = await this.getBoard(this.id);
+        this.boardName = myBoard.name;
+      } catch (e) {
+        this.$router.push({ name: 'Home' });
+      }
     } else {
       this.boardName = this.name;
     }
 
     // Obtenemos las tareas
+    this.clearLists();
     await this.getLists(this.id);
   },
 
   // Mis métodos
   methods: {
     ...mapActions(BoardsStore, ['getBoard']),
-    ...mapActions(ListsStore, ['getLists']),
+    ...mapActions(ListsStore, ['getLists', 'clearLists']),
   },
 
   setup(props) {
