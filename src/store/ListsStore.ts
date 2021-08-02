@@ -26,6 +26,10 @@ const ListsStore = defineStore({
       this.lists = newLists;
     },
 
+    clearLists() {
+      this.lists = [] as List[];
+    },
+
     async getNewListId(): Promise<any> {
       return Lists.getNewId();
     },
@@ -72,14 +76,11 @@ const ListsStore = defineStore({
 
     async removeList(listID: string) {
       console.log('ListsStore removeBoard ->', listID);
+      // Hay que borrar antes todas las tareas
       await Lists.removeList(listID);
     },
 
     async getLists(boardID: string): Promise<any> {
-      // console.log('BoardsStore getBoards ->', user);
-      // const boards = await Boards.getBoards(user);
-      // this.boards = boards;
-
       // Detectar cambios en tiempo real
       return Service.listsCollection.where('board', '==', boardID)
         .onSnapshot((querySnapshot) => {
@@ -98,6 +99,13 @@ const ListsStore = defineStore({
             }
           });
         });
+    },
+
+    async removeAll() {
+      console.log('ListsStore removeAll');
+      this.lists.forEach(async (list) => {
+        await this.removeList(list.id);
+      });
     },
   },
 });
