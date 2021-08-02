@@ -5,7 +5,7 @@
         <span>
           <router-link class="my-boards" :to="{ name: 'Home' }">Mis Paneles</router-link>
         </span>
-        ▸ {{ name }}
+        ▸ {{ boardName }}
       </h3>
       <input
         type="text"
@@ -16,10 +16,11 @@
     </div>
     <div class="board-container">
       <BoardColumn
-        v-for="list in boardsList"
+        v-for="list in listsStore.lists"
         :key="list.id"
-        :listId="String(list.id)"
+        :listId="list.id"
         :name="list.name"
+        :boardId="props.id"
         @delete-list="deleteList"
       >
       </BoardColumn>
@@ -32,6 +33,9 @@ import { defineComponent, ref } from 'vue';
 import { notify } from '@kyvg/vue3-notification';
 import BoardColumn from '@/components/BoardColumn.vue';
 import List from '@/models/IList';
+import ListsStore from '@/store/ListsStore';
+import BoardsStore from '@/store/BoardsStore';
+import { mapActions } from 'pinia';
 
 export default defineComponent({
   name: 'Board',
@@ -53,45 +57,91 @@ export default defineComponent({
     BoardColumn,
   },
 
-  setup() {
+  data: () => ({
+    boardName: '',
+  }),
+
+  async created() {
+    // esto es por si entramos directamente en el enlace
+    if (!this.name) {
+      try {
+        const myBoard = await this.getBoard(this.id);
+        this.boardName = myBoard.name;
+      } catch (e) {
+        this.$router.push({ name: 'Home' });
+      }
+    } else {
+      this.boardName = this.name;
+    }
+
+    // Obtenemos las tareas
+    this.clearLists();
+    await this.getLists(this.id);
+  },
+
+  // Mis métodos
+  methods: {
+    ...mapActions(BoardsStore, ['getBoard']),
+    ...mapActions(ListsStore, ['getLists', 'clearLists']),
+  },
+
+  setup(props) {
+    const listsStore = ListsStore();
+
     // Mis datos reactivos
     const listName = ref('');
-    const boardsList = ref<List[]>([
-      { id: Date.now().toString(), name: 'Todo', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Doing', createdAt: Date.now() },
-      { id: Date.now().toString(), name: 'Done', createdAt: Date.now() },
-    ]);
 
     // Mis métodos
 
-    function addList() {
+    async function addList() {
       console.log('addList ->', listName.value);
       if (listName.value) {
-        boardsList.value.push({
-          id: Date.now().toString(),
-          name: listName.value,
-          createdAt: Date.now(),
-        });
-        notify({
-          title: 'Tarjeta de tareas creada',
-          text: `Se ha creado la tarjeta de tareas: ${listName.value}`,
-          type: 'success',
-        });
-        listName.value = '';
+        try {
+          const listID = await listsStore.getNewListId();
+          const newList = {
+            id: listID,
+            name: listName.value,
+            createdAt: Date.now(),
+            board: props.id,
+          } as List;
+          // Añadimos
+          await listsStore.createList(newList);
+          notify({
+            title: 'Tarjeta de tareas creada',
+            text: `Se ha creado la tarjeta de tareas: ${listName.value}`,
+            type: 'success',
+          });
+          listName.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
       }
     }
     // Tamabien puedo usar funciones flecha si quiero
-    const deleteList = (listId: string) => {
+    async function deleteList(listId: string) {
       console.log('deleteList ->', listId);
-      boardsList.value = boardsList.value.filter((list) => list.id !== listId);
-    };
+      try {
+        await listsStore.removeList(listId);
+      } catch (error) {
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
+      }
+    }
 
     // Visibilidad
     return {
       listName,
-      boardsList,
+      listsStore,
       addList,
       deleteList,
+      props,
     };
   },
 

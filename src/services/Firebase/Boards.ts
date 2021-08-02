@@ -21,6 +21,7 @@ export default {
   },
 
   async removeBoard(boardID: string): Promise<any> {
+    // Hay que borrar antes las listas asociadas
     return Boards.doc(boardID).delete();
   },
 

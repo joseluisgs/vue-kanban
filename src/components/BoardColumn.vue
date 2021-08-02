@@ -23,6 +23,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    boardId: {
+      type: String,
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -35,6 +39,7 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+    console.log(props.boardId);
     // Mis datos
     const tasksList = ref<Task[]>([
       {

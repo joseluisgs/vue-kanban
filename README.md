@@ -1,7 +1,7 @@
 # Vue-Kanban
 Sencilla aplicación en Vue.js 3 para gestionar tareas y actividades usando Kanban.
 
-[![Vue Ready](https://img.shields.io/badge/Vue.js 3-%20Ready-%2342b983)](https://es.vuejs.org/)
+[![Vue Ready](https://img.shields.io/badge/Vue.js%20v3-%20Ready-%2342b983)](https://es.vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6)](https://www.typescriptlang.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-Ready-orange)](https://firebase.google.com)
 [![Code Style](https://img.shields.io/badge/JS%20Style-AirBnB-ff69b4)](https://airbnb.io/javascript)
@@ -30,11 +30,11 @@ El objetivo de este proyecto es mostrar el uso de Vue.js para hacer un gestor de
 
 ### Composition Api 
 Además se va a implementar siguiendo algunas de las bondades de Vue.js 3 como es el paso de Options Api a Composition Api y sus ventajas de hacer reutilizable parte del código entre componentes sin repetir. 
-- [Vue.js 3 Composition Api](https://v3.vuejs.org/guide/composition-api-introduction.html#why-composition-api)]
-- [Vue.js 3 ¿Por qué?](https://learnvue.co/2020/01/4-vue3-composition-api-tips-you-should-know/)]
+- [Vue.js 3 Composition Api](https://v3.vuejs.org/guide/composition-api-introduction.html#why-composition-api)
+- [Vue.js 3 ¿Por qué?](https://learnvue.co/2020/01/4-vue3-composition-api-tips-you-should-know/)
 - [Vue.js 3 Composable Code](https://markus.oberlehner.net/blog/vue-3-composition-api-vs-options-api/)
 
-En este proyecto intercalaremos las dos opciones para ver pros y contras. De todas maneras las gran ventaja de Composition es cuando tu componene es grande y quieres organizar la lógica o simplemente compartir usando Mixins.
+En este proyecto intercalaremos las dos opciones para ver pros y contras. De todas maneras las gran ventaja de Composition es cuando tu componente es grande y quieres organizar la lógica o simplemente compartir usando Mixins. Aún así se pueden mezclar las dos filosofías como también se verá.
 
 ### Vuex vs Pinia
 Sabemos que [Vuex](https://vuex.vuejs.org/) es una solución para manejar el Store de nuestra aplicación en Vue.js. Pero conocemos sus debilidades actuales a la hora de manejar TypeScript. De hecho hay que recurrir a algunos trucos, como los decoradores de TypeScript para que no fracasemos en el intento.
