@@ -16,7 +16,7 @@
     </div>
     <div class="board-container">
       <BoardColumn
-        v-for="list in lists"
+        v-for="list in boardLists"
         :key="list.id"
         :listId="list.id"
         :name="list.name"
@@ -61,6 +61,7 @@ export default defineComponent({
     boardName: '',
   }),
 
+  // Lo hago para coger directamente las cosas si entran en la url
   async created() {
     // esto es por si entramos directamente en el enlace
     if (!this.name) {
@@ -73,25 +74,22 @@ export default defineComponent({
     } else {
       this.boardName = this.name;
     }
-
-    // Obtenemos las istas y las tareas asociadas
-    this.clearLists();
-    await this.getLists(this.id);
-    console.log('Board Created ->', this.lists);
   },
 
   computed: {
-    ...mapState(ListsStore, ['lists']),
+    ...mapState(ListsStore, ['lists', 'getListsByBoard']),
   },
 
   // Mis métodos
   methods: {
     ...mapActions(BoardsStore, ['getBoard']),
-    ...mapActions(ListsStore, ['getLists', 'clearLists']),
   },
 
   setup(props) {
     const listsStore = ListsStore();
+    const boardLists = ref<List[]>([]);
+    boardLists.value = listsStore.getListsByBoard(props.id);
+    console.log('Board Created ->', boardLists.value);
 
     // Mis datos reactivos
     const listName = ref('');
@@ -143,7 +141,7 @@ export default defineComponent({
     // Visibilidad
     return {
       listName,
-      listsStore,
+      boardLists,
       addList,
       deleteList,
       props,
