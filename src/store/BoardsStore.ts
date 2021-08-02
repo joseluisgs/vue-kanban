@@ -26,7 +26,7 @@ const BoardsStore = defineStore({
       this.boards = newBoards;
     },
 
-    // Mutaciones
+    // BOARDS
     async getNewBoardId() {
       return Boards.getNewId();
     },
@@ -100,6 +100,10 @@ const BoardsStore = defineStore({
           }
         });
       });
+    },
+
+    async getBoard(boardID: string): Promise<any> {
+      return Boards.getBoard(boardID);
     },
   },
 });
