@@ -80,12 +80,13 @@ const ListsStore = defineStore({
     async removeList(listID: string) {
       console.log('ListsStore removeList ->', listID);
       // Hay que borrar antes todas las tareas
-      // await this.removeTasks();
+      const tasksStore = TasksStore();
+      await tasksStore.removeTasksByList(listID);
       await Lists.removeList(listID);
     },
 
     async getLists(): Promise<any> {
-      // Detectar cambios en tiempo real
+      // Detectar cambios en tiempo real, debemos filtrar usuario para no traerlas todas
       this.listener = Service.listsCollection
         .onSnapshot(async (querySnapshot) => {
           querySnapshot.docChanges().forEach(async (change) => {

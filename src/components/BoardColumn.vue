@@ -49,12 +49,6 @@ export default defineComponent({
       /* eslint-disable no-alert */
       // eslint-disable-next-line no-restricted-globals
       if (confirm('¿Eliminar tarjeta de tareas?')) {
-        // this.lists = [] as Task[];
-        notify({
-          title: 'Tarjeta de tareas eliminada',
-          text: 'Se ha eliminado tarjeta y todas sus tareas asociadas',
-          type: 'error',
-        });
         this.$emit('delete-list', this.listId);
       }
     },

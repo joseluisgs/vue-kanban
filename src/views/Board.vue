@@ -125,6 +125,11 @@ export default defineComponent({
       console.log('deleteList ->', listId);
       try {
         await listsStore.removeList(listId);
+        notify({
+          title: 'Tarjeta de tareas eliminada',
+          text: 'Se ha eliminado tarjeta y todas sus tareas asociadas',
+          type: 'error',
+        });
       } catch (error) {
         notify({
           title: 'Error',

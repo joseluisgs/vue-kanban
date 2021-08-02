@@ -105,6 +105,14 @@ const TasksStore = defineStore({
           });
         });
     },
+
+    async removeTasksByList(listID: string) {
+      console.log('TasksStore removeAll');
+      const myTasks = this.getTasksByList(listID);
+      myTasks.forEach(async (task) => {
+        await this.removeTask(task);
+      });
+    },
   },
 
 });
