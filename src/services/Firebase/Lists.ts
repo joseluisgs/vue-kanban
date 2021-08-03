@@ -21,7 +21,6 @@ export default {
   },
 
   async removeList(listID: string): Promise<any> {
-    // Hay que borrar antes las tareas asociadas
     return Lists.doc(listID).delete();
   },
 };

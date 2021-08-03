@@ -1,7 +1,7 @@
 interface IList{
   id: string;
   name: string;
-  createdAt?: number;
+  createdAt: number;
   board: string;
 }
 

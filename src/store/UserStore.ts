@@ -32,11 +32,11 @@ const UserStore = defineStore({
       };
       // Cargamos sus tableros
       const boardsStore = BoardsStore();
-      this.listener = await boardsStore.getBoards(this.user.email);
+      await boardsStore.getBoards(this.user.email);
     },
 
     async checkAuth() {
-      Service.auth.onAuthStateChanged(async (user) => {
+      this.listener = Service.auth.onAuthStateChanged(async (user) => {
         console.log('UserStore checkAuth ->', user);
         if (user) {
           await this.setUser(user);

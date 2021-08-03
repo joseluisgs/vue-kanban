@@ -16,7 +16,7 @@
     </div>
     <div class="board-container">
       <BoardColumn
-        v-for="list in listsStore.lists"
+        v-for="list in getListsByBoard(id)"
         :key="list.id"
         :listId="list.id"
         :name="list.name"
@@ -35,7 +35,7 @@ import BoardColumn from '@/components/BoardColumn.vue';
 import List from '@/models/IList';
 import ListsStore from '@/store/ListsStore';
 import BoardsStore from '@/store/BoardsStore';
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 
 export default defineComponent({
   name: 'Board',
@@ -73,16 +73,15 @@ export default defineComponent({
     } else {
       this.boardName = this.name;
     }
+  },
 
-    // Obtenemos las tareas
-    this.clearLists();
-    await this.getLists(this.id);
+  computed: {
+    ...mapState(ListsStore, ['getListsByBoard']),
   },
 
   // Mis métodos
   methods: {
     ...mapActions(BoardsStore, ['getBoard']),
-    ...mapActions(ListsStore, ['getLists', 'clearLists']),
   },
 
   setup(props) {
@@ -126,6 +125,11 @@ export default defineComponent({
       console.log('deleteList ->', listId);
       try {
         await listsStore.removeList(listId);
+        notify({
+          title: 'Tarjeta de tareas eliminada',
+          text: 'Se ha eliminado tarjeta y todas sus tareas asociadas',
+          type: 'error',
+        });
       } catch (error) {
         notify({
           title: 'Error',

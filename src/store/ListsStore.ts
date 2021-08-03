@@ -5,17 +5,24 @@ import List from '@/models/IList';
 import { defineStore } from 'pinia';
 import Service from '@/services/Firebase';
 import Lists from '@/services/Firebase/Lists';
+import TasksStore from '@/store/TasksStore';
 
 const ListsStore = defineStore({
   // id es único para identificarlo con las DevTools
   id: 'ListsStore',
   state: () => ({
     lists: [] as List[],
+    listener: {},
   }),
 
-  // Nos devuelven datos del objeto o el objeto, o computados
+  // Nos devuelven datos del objeto o el objeto, o computados con distintas propiedades de ordenación
   getters: {
     Lists: (state) => state.lists,
+    getListsByBoard: (state) => (boardID: string) => (state.lists.filter((list) => list.board === boardID))
+    // Si lo quiero por orden alfabético
+    // .sort((a, b) => a.name.localeCompare(b.name)),
+    // si la quiero por fecha
+      .sort((a, b) => Number(a.createdAt) - Number(b.createdAt)),
   },
 
   // Mutan el objeto síncrona y asíncronamente,
@@ -24,10 +31,6 @@ const ListsStore = defineStore({
     // eslint-disable-next-line
     setLists(newLists: List[]) {
       this.lists = newLists;
-    },
-
-    clearLists() {
-      this.lists = [] as List[];
     },
 
     async getNewListId(): Promise<any> {
@@ -61,7 +64,7 @@ const ListsStore = defineStore({
     },
 
     deleteList(deleteList: any) {
-      console.log('Lists Store deleteBoard ->', deleteList);
+      console.log('Lists Store deleteList ->', deleteList);
       const index = this.lists.findIndex((list) => list.id === deleteList.id);
       if (index !== -1) {
         this.lists.splice(index, 1);
@@ -75,16 +78,18 @@ const ListsStore = defineStore({
     },
 
     async removeList(listID: string) {
-      console.log('ListsStore removeBoard ->', listID);
+      console.log('ListsStore removeList ->', listID);
       // Hay que borrar antes todas las tareas
+      const tasksStore = TasksStore();
+      await tasksStore.removeTasksByList(listID);
       await Lists.removeList(listID);
     },
 
-    async getLists(boardID: string): Promise<any> {
-      // Detectar cambios en tiempo real
-      return Service.listsCollection.where('board', '==', boardID)
-        .onSnapshot((querySnapshot) => {
-          querySnapshot.docChanges().forEach((change) => {
+    async getLists(): Promise<any> {
+      // Detectar cambios en tiempo real, debemos filtrar usuario para no traerlas todas
+      this.listener = Service.listsCollection
+        .onSnapshot(async (querySnapshot) => {
+          querySnapshot.docChanges().forEach(async (change) => {
             if (change.type === 'added') {
               console.log('Lists Store Change Added --> ', change.doc.data());
               this.addList(change.doc.data());
@@ -98,12 +103,21 @@ const ListsStore = defineStore({
               this.deleteList(change.doc.data());
             }
           });
+          // Aqui cargo todas las tareas
+          const tasksStore = TasksStore();
+          console.log('ListStore getTasks');
+          await tasksStore.getTasks();
         });
     },
 
-    async removeAll() {
+    async getList(listID: string): Promise<any> {
+      return Lists.getList(listID);
+    },
+
+    async removeListsByBoard(boardID: string) {
       console.log('ListsStore removeAll');
-      this.lists.forEach(async (list) => {
+      const myLists = this.getListsByBoard(boardID);
+      myLists.forEach(async (list) => {
         await this.removeList(list.id);
       });
     },

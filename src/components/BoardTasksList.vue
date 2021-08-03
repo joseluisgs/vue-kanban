@@ -26,9 +26,12 @@ import { defineComponent, ref } from 'vue';
 import Task from '@/models/ITask';
 // Librería de tiempo y su plugin de tiempo relativo
 import dayjs from 'dayjs';
+import 'dayjs/locale/es';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { notify } from '@kyvg/vue3-notification';
+import TasksStore from '@/store/TasksStore';
 
+dayjs.locale('es');
 dayjs.extend(relativeTime);
 
 export default defineComponent({
@@ -41,7 +44,7 @@ export default defineComponent({
       required: true,
     },
     tasks: {
-      type: Array as () => Array<Task>,
+      type: Array as () => Array<Task>, // o si es un objeto complejp Object as PropType<MiInterface>
       required: true,
     },
   },
@@ -49,46 +52,66 @@ export default defineComponent({
   setup(props) {
     // Mis datos
     const title = ref('');
-
+    const tasksStore = TasksStore();
     // Mis métodos
     // Añade una tarea
-    function addTask() {
+    async function addTask() {
       console.log('addTask ->', title.value);
       if (title.value) {
-        // eslint-disable-next-line vue/no-mutating-props
-        props.tasks.push({
-          id: Date.now().toString(),
-          name: title.value,
-          completed: false,
-          createdAt: Date.now(),
-        });
-        notify({
-          title: 'Tarea añadida',
-          text: `Se ha añadido la tarea tareas: ${title.value}`,
-          type: 'success',
-        });
-        title.value = '';
+        try {
+          const taskID = await tasksStore.getNewTaskId(props.listId);
+          const newTask = {
+            id: taskID,
+            name: title.value,
+            createdAt: Date.now(),
+            list: props.listId,
+            completed: false,
+          } as Task;
+          // Añadimos
+          // console.log('addTask ->', newTask);
+          await tasksStore.createTask(newTask);
+          notify({
+            title: 'Tarea añadida',
+            text: `Se ha añadido la tarea tareas: ${title.value}`,
+            type: 'success',
+          });
+          title.value = '';
+        } catch (error) {
+          notify({
+            title: 'Error',
+            text: error.message,
+            type: error,
+          });
+        }
       }
     }
 
     // Borra una tarea
-    function deleteTask(task: Task) {
+    async function deleteTask(task: Task) {
       console.log('deleteTask -> ', task);
       // eslint-disable-next-line vue/no-mutating-props
-      props.tasks.splice(props.tasks.indexOf(task), 1);
-      notify({
-        title: 'Tarea eliminada',
-        text: `Se ha eliminado la tarea tareas: ${task.name}`,
-        type: 'error',
-      });
+      try {
+        notify({
+          title: 'Tarea eliminada',
+          text: `Se ha eliminado la tarea tareas: ${task.name}`,
+          type: 'error',
+        });
+        await tasksStore.removeTask(task);
+      } catch (error) {
+        notify({
+          title: 'Error',
+          text: error.message,
+          type: error,
+        });
+      }
     }
 
     // Marca como completado
-    function completedTask(task: Task) {
+    async function completedTask(task: Task) {
       console.log('completedTask -> ', task);
       /* eslint-disable no-param-reassign */
       task.completed = !task.completed;
-      task.createdAt = Date.now();
+      await tasksStore.createTask(task);
     }
 
     // tiempo

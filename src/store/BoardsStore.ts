@@ -12,6 +12,7 @@ const BoardsStore = defineStore({
   id: 'BoardsStore',
   state: () => ({
     boards: [] as Board[],
+    listener: {},
   }),
 
   // Nos devuelven datos del objeto o el objeto, o computados
@@ -76,9 +77,8 @@ const BoardsStore = defineStore({
     async removeBoard(boardID: string) {
       console.log('BoardsStore removeBoard ->', boardID);
       // Hay que eliminar todas las listas
-      await this.removeLists();
+      await this.removeLists(boardID);
       await Boards.removeBoard(boardID);
-      // this.boards = this.boards.filter((board) => board.id !== boardID);
     },
 
     async getBoards(user: string): Promise<any> {
@@ -87,8 +87,8 @@ const BoardsStore = defineStore({
       // this.boards = boards;
 
       // Detectar cambios en tiempo real
-      return Service.boardsCollection.where('user', '==', user)
-        .onSnapshot((querySnapshot) => {
+      this.listener = await Service.boardsCollection.where('user', '==', user)
+        .onSnapshot(async (querySnapshot) => {
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === 'added') {
               console.log('Boards Store Change Added --> ', change.doc.data());
@@ -103,6 +103,10 @@ const BoardsStore = defineStore({
               this.deleteBoard(change.doc.data());
             }
           });
+          // Aqui cargo todas las listas
+          const listsStore = ListsStore();
+          console.log('BoardsStore getList');
+          await listsStore.getLists();
         });
     },
 
@@ -110,9 +114,9 @@ const BoardsStore = defineStore({
       return Boards.getBoard(boardID);
     },
 
-    async removeLists() {
+    async removeLists(boardID: string) {
       const listsStore = ListsStore();
-      await listsStore.removeAll();
+      await listsStore.removeListsByBoard(boardID);
     },
   },
 });

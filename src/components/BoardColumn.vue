@@ -4,15 +4,17 @@
       <h3>{{ name }}</h3>
       <span class="delete" @click="deleteList"> X </span>
     </header>
-    <BoardTasksList :listId="listId" :tasks="tasksList"> </BoardTasksList>
+    <BoardTasksList
+      :listId="listId"
+      :tasks="getTasksByList(listId)" />
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { notify } from '@kyvg/vue3-notification';
+import { defineComponent } from 'vue';
 import BoardTasksList from '@/components/BoardTasksList.vue';
-import Task from '@/models/ITask';
+import TasksStore from '@/store/TasksStore';
+import { mapState } from 'pinia';
 
 export default defineComponent({
   name: 'BoardColumn',
@@ -20,10 +22,6 @@ export default defineComponent({
   // Mis propiedades y verificación de tipos
   props: {
     listId: {
-      type: String,
-      required: true,
-    },
-    boardId: {
       type: String,
       required: true,
     },
@@ -38,51 +36,20 @@ export default defineComponent({
     BoardTasksList,
   },
 
-  setup(props, { emit }) {
-    console.log(props.boardId);
-    // Mis datos
-    const tasksList = ref<Task[]>([
-      {
-        id: Date.now().toString(),
-        name: 'Apreder Vue.js',
-        completed: false,
-        createdAt: Date.now(),
-      },
-      {
-        id: Date.now().toString(),
-        name: 'Dominar CSS Flex',
-        completed: false,
-        createdAt: Date.now(),
-      },
-      {
-        id: Date.now().toString(),
-        name: 'Maquetar con Tailwind',
-        completed: true,
-        createdAt: Date.now(),
-      },
-    ]);
+  computed: {
+    ...mapState(TasksStore, ['getTasksByList']),
+  },
 
-    // Mis métodos
-    function deleteList() {
+  // Mis métodos
+  methods: {
+    deleteList() {
       // Eliminamos las tareas de la columna
       /* eslint-disable no-alert */
       // eslint-disable-next-line no-restricted-globals
       if (confirm('¿Eliminar tarjeta de tareas?')) {
-        tasksList.value = [];
-        notify({
-          title: 'Tarjeta de tareas eliminada',
-          text: 'Se ha eliminado tarjeta y todas sus tareas asociadas',
-          type: 'error',
-        });
-        emit('delete-list', props.listId);
+        this.$emit('delete-list', this.listId);
       }
-    }
-
-    // Mi visibilidad
-    return {
-      tasksList,
-      deleteList,
-    };
+    },
   },
 });
 </script>
