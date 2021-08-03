@@ -1,4 +1,5 @@
 // Para quitar los console logs
+// no olvides instalar "babel-plugin-transform-remove-console
 const plugins = [];
 // remove console outputs in production enviroment!
 if (process.env.VUE_APP_STAGE === 'production') {

@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@kyvg/vue3-notification": "^2.3.3",
-    "babel-plugin-transform-remove-console": "^6.9.4",
     "core-js": "^3.6.5",
     "dayjs": "^1.10.6",
     "firebase": "^8.8.1",
@@ -28,6 +27,7 @@
     "@vue/compiler-sfc": "^3.0.0",
     "@vue/eslint-config-airbnb": "^5.0.2",
     "@vue/eslint-config-typescript": "^7.0.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^7.0.0",
