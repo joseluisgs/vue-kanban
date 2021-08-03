@@ -46,7 +46,7 @@ Sabemos que [Vuex](https://vuex.vuejs.org/) es una solución para manejar el Sto
 En este proyecto usaremos Pinia, porque mejora enormemente el uso de TypeScript en Vue.js para las Store y nos permite tener una Store desacoplada y accesible sin necesidad de módulos.
 
 ## Despliegue
-Este proyecto esta desplegado en [Netlify](https://vuekanban.netlify.app/).
+Este proyecto esta desplegado en [Netlify](https://vuekanban.netlify.app/) en [https://vuekanban.netlify.app](https://vuekanban.netlify.app).
 
 ## Project setup
 ```
