@@ -7,12 +7,14 @@ Sencilla aplicación en Vue.js 3 para gestionar tareas y actividades usando Kanb
 [![Code Style](https://img.shields.io/badge/JS%20Style-AirBnB-ff69b4)](https://airbnb.io/javascript)
 [![Licence](https://img.shields.io/github/license/joseluisgs/photo-gallery-ionic)](./LICENSE)
 ![GitHub](https://img.shields.io/github/last-commit/joseluisgs/vue-kanban)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/643fbc00-dfa4-425c-929c-1f9cd79f499f/deploy-status)](https://app.netlify.com/sites/vuekanban/deploys)
 
 ![Portada](https://blog.acelerato.com/wp-content/uploads/2016/02/kanban-melhoria-conti%CC%81nua.png)
 - [Vue-Kanban](#vue-kanban)
   - [Sobre el proyecto](#sobre-el-proyecto)
     - [Composition Api](#composition-api)
     - [Vuex vs Pinia](#vuex-vs-pinia)
+  - [Despliegue](#despliegue)
   - [Project setup](#project-setup)
     - [Compiles and hot-reloads for development](#compiles-and-hot-reloads-for-development)
     - [Compiles and minifies for production](#compiles-and-minifies-for-production)
@@ -42,6 +44,9 @@ Sabemos que [Vuex](https://vuex.vuejs.org/) es una solución para manejar el Sto
 [Pinia](https://pinia.esm.dev/) es una solución propuesta por uno de los creadores de Vuex y marca las nuevas tendencias de lo que Vuex podrá ser. Integra perfectamente TypeScript y su filosofía de trabajo es ágil, a parte de que su rendimiento es algo mayor. Una comparativa puede verse [aquí](https://blog.logrocket.com/pinia-vs-vuex/).
 
 En este proyecto usaremos Pinia, porque mejora enormemente el uso de TypeScript en Vue.js para las Store y nos permite tener una Store desacoplada y accesible sin necesidad de módulos.
+
+## Despliegue
+Este proyecto esta desplegado en [Netlify](https://vuekanban.netlify.app/).
 
 ## Project setup
 ```
