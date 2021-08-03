@@ -1,4 +1,4 @@
-// Para quitar los console log
+// Para quitar los console logs
 const plugins = [];
 // remove console outputs in production enviroment!
 if (process.env.VUE_APP_STAGE === 'production') {
